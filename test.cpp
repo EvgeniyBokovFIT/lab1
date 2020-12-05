@@ -16,6 +16,14 @@ TEST(Tritset, DontAllocMemoryForUnknown)
 	EXPECT_TRUE(PrevCapacity == set.capacity());
 
 }
+TEST(Tritset,AllocMemory)
+{
+	Tritset set(200);
+	size_t PrevCapacity = set.capacity();
+	set[1000] = TritState::TRUE;
+	EXPECT_TRUE(PrevCapacity < set.capacity());
+
+}
 TEST(Tritset, Length)
 {
 	Tritset set(200);
