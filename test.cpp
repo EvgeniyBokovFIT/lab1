@@ -88,6 +88,16 @@ TEST(Tritset, AND)
 	setB[15] = TritState::TRUE;
 	setB[16] = TritState::TRUE;
 	Tritset setC = setA & setB;
+	Tritset setAAfterOperation = setA;
+	for (size_t i = 0; i < setAAfterOperation.GetLengthInTrits(); i++)
+	{
+		EXPECT_TRUE(setAAfterOperation[i] == setA[i]);
+	}
+	Tritset setBAfterOperation = setB;
+	for (size_t i = 0; i < setBAfterOperation.GetLengthInTrits(); i++)
+	{
+		EXPECT_TRUE(setBAfterOperation[i] == setB[i]);
+	}
 	EXPECT_TRUE(setC[15] == TritState::TRUE);
 	EXPECT_TRUE(setC[16] == TritState::FALSE);
 	EXPECT_TRUE(setC[50] == TritState::UNKNOWN);
@@ -102,6 +112,16 @@ TEST(Tritset, OR)
 	setB[15] = TritState::TRUE;
 	setB[16] = TritState::TRUE;
 	Tritset setC = setA || setB;
+	Tritset setAAfterOperation = setA;
+	for (size_t i = 0; i < setAAfterOperation.GetLengthInTrits(); i++)
+	{
+		EXPECT_TRUE(setAAfterOperation[i] == setA[i]);
+	}
+	Tritset setBAfterOperation = setB;
+	for (size_t i = 0; i < setBAfterOperation.GetLengthInTrits(); i++)
+	{
+		EXPECT_TRUE(setBAfterOperation[i] == setB[i]);
+	}
 	EXPECT_TRUE(setC[15] == TritState::TRUE);
 	EXPECT_TRUE(setC[16] == TritState::TRUE);
 	EXPECT_TRUE(setC[50] == TritState::UNKNOWN);
@@ -113,6 +133,11 @@ TEST(Tritset, NOT)
 	setA[15] = TritState::TRUE;
 	setA[16] = TritState::FALSE;
 	Tritset setB = ~setA;
+	Tritset setAAfterOperation = setA;
+	for (size_t i = 0; i < setAAfterOperation.GetLengthInTrits(); i++)
+	{
+		EXPECT_TRUE(setAAfterOperation[i] == setA[i]);
+	}
 	EXPECT_TRUE(setB[15] == TritState::FALSE);
 	EXPECT_TRUE(setB[16] == TritState::TRUE);
 	EXPECT_TRUE(setB[50] == TritState::UNKNOWN);
@@ -154,8 +179,6 @@ TEST(Tritset, Cardinality)
 	EXPECT_TRUE(set.cardinality(TritState::UNKNOWN) == 1);
 	
 }
-
-
 
 TEST(Tritset, CardinalityMap)
 {
@@ -199,4 +222,53 @@ TEST(Tritset, LogicalLength)
 	set[70] = TritState::FALSE;
 	EXPECT_TRUE(set.LogicalLength() == 71);
 
+	set[70] = TritState::UNKNOWN;
+	EXPECT_TRUE(set.LogicalLength() == 50);
+}
+
+TEST(Tritset, TaskFullTest)
+{
+	Tritset set(1000);
+
+	size_t AllocLength = set.capacity();
+	EXPECT_TRUE(AllocLength >= 200 * 2 / 8 / sizeof(uint));
+
+	set[10000000] = TritState::UNKNOWN;
+	EXPECT_TRUE(AllocLength == set.capacity());
+
+	if (set[20000000] == TritState::TRUE)
+	{
+
+	}
+	EXPECT_TRUE(AllocLength == set.capacity());
+
+	set[10000000] = TritState::TRUE;
+	EXPECT_TRUE(AllocLength < set.capacity());
+
+	AllocLength = set.capacity();
+	set[10000000] = TritState::UNKNOWN;
+	set[100000] = TritState::FALSE;
+	EXPECT_TRUE(AllocLength == set.capacity());
+
+	set.shrink();
+	EXPECT_TRUE(AllocLength > set.capacity());
+
+	Tritset setA(1000);
+	Tritset setB(2000);
+	Tritset setC = setA & setB;
+	EXPECT_TRUE(setC.capacity() == setB.capacity());
+
+}
+
+TEST(Tritset, ForAuto)
+{
+	Tritset set(100);
+	for (auto& trit : set)
+	{
+		trit = TritState::TRUE;
+	}
+	for (size_t i = 0; i < 100; i++)
+	{
+		EXPECT_TRUE(set[i] == TritState::TRUE);
+	}
 }
