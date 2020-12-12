@@ -48,6 +48,12 @@ private:
 		bool operator !=(const TritsetProxy& other);
 
 		bool operator !=(TritState value);
+
+		bool operator !=(size_t index);
+
+		void operator ++();
+
+		TritsetProxy& operator *();
 	};
 
 public:
@@ -66,15 +72,15 @@ public:
 
 	friend ostream& operator << (ostream& out, Tritset::TritsetProxy ProxyObj);
 
-	TritState GetValueByIndex(size_t TritIndex, size_t TritLength);
+	TritState GetValueByIndex(size_t TritIndex, size_t TritLength) const;
 
 	void shrink();
 
-	Tritset operator & (Tritset& other);
+	Tritset operator & (const Tritset& other)const;
 
-	Tritset operator || (Tritset& other);
+	Tritset operator || (const Tritset& other)const;
 
-	Tritset operator ~();
+	Tritset operator ~()const;
 
 	Tritset& operator = (const Tritset& other);
 
@@ -86,6 +92,10 @@ public:
 
 	size_t LogicalLength();
 
+	TritsetProxy begin();
+	
+	size_t end();
+
 	~Tritset()
 	{
 
@@ -93,8 +103,4 @@ public:
 
 };
 
-
-
-
-
-
+ostream& operator << (ostream& out, const TritState& value);
