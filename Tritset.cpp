@@ -15,14 +15,14 @@ Tritset::Tritset(size_t length)
 
 	uint TritValue = (uint)TritState::UNKNOWN;
 
-	uint UintValue = TritValue;
+	uint FullUnknownUintValue = TritValue;
 
 	for (size_t j = Shift; j > 1; j -= 2)
 	{
-		UintValue += (TritValue << j);
+		FullUnknownUintValue += (TritValue << j);
 	}
 
-	this->Trits.resize(lengthInUints, UintValue); //assign unknown to every trit
+	this->Trits.resize(lengthInUints, FullUnknownUintValue); //assign unknown to every trit
 }
 
 Tritset::Tritset(const Tritset& other)
@@ -52,25 +52,22 @@ TritState Tritset::TritsetProxy::operator = (TritState value)
 {
 	if ((this->TritIndex >= set.lengthInTrits) && (value != TritState::UNKNOWN))
 	{
-		uint FullUnknownUintValue = 0;
 
 		uint Shift = sizeof(uint) * 8 - 2;
 
+		size_t PrevSize = set.Trits.size();
+
 		uint TritValue = (uint)TritState::UNKNOWN;
 
-		size_t PrevSize = set.Trits.size();
+		uint FullUnknownUintValue = TritValue;
 
 		for (size_t j = Shift; j > 1; j -= 2)
 		{
 			FullUnknownUintValue += (TritValue << j);
 		}
 
-		set.Trits.resize(CurUintIndex + 1);
+		set.Trits.resize(CurUintIndex + 1, FullUnknownUintValue);
 
-		for (size_t i = PrevSize; i < set.Trits.size(); i++) //assign unknown to every trit
-		{
-			set.Trits[i] = FullUnknownUintValue;
-		}
 		set.lengthInTrits = this->TritIndex + 1;
 
 	}
@@ -135,6 +132,26 @@ bool Tritset::TritsetProxy::operator !=(const TritsetProxy& other)
 	return true;
 }
 
+bool Tritset::TritsetProxy::operator !=(size_t index)
+{
+	if (this->TritIndex != index)
+	{
+		return true;
+	}
+	return false;
+}
+
+void Tritset::TritsetProxy::operator ++()
+{
+	this->TritIndex++;
+	CurUintIndex = size_t(TritIndex * 2 / 8 / sizeof(uint));
+}
+
+Tritset::TritsetProxy& Tritset::TritsetProxy::operator *()
+{
+	return *this;
+}
+
 size_t Tritset::GetLengthInTrits()
 {
 	return this->lengthInTrits;
@@ -151,7 +168,7 @@ size_t Tritset::capacity()
 	return this->Trits.capacity();
 }
 
-TritState Tritset::GetValueByIndex(size_t TritIndex, size_t TritLength)
+TritState Tritset::GetValueByIndex(size_t TritIndex, size_t TritLength) const
 {
 	if (TritIndex >= TritLength)
 	{
@@ -185,7 +202,7 @@ void Tritset::shrink()
 	this->lengthInTrits = RightTritIndex + 1;
 }
 
-Tritset Tritset::operator & (Tritset& other)
+Tritset Tritset::operator & (const Tritset& other)const
 {
 	size_t TritIndex = 0;
 	size_t MaxSize = 0;
@@ -257,7 +274,7 @@ Tritset Tritset::operator & (Tritset& other)
 	return result;
 }
 
-Tritset Tritset::operator || (Tritset& other)
+Tritset Tritset::operator || (const Tritset& other)const
 {
 	size_t TritIndex = 0;
 	size_t MaxSize = 0;
@@ -329,7 +346,7 @@ Tritset Tritset::operator || (Tritset& other)
 	return result;
 }
 
-Tritset Tritset::operator ~()
+Tritset Tritset::operator ~() const
 {
 	Tritset result(this->lengthInTrits);
 	size_t LengthInUints = size_t(ceil(double(this->lengthInTrits) * 2.0 / 8.0 / sizeof(uint)));
@@ -436,7 +453,8 @@ void Tritset::trim(size_t LastIndex)
 size_t Tritset::LogicalLength()
 {
 	size_t LastIndex = this->lengthInTrits - 1;
-	while (this->GetValueByIndex(LastIndex, this->lengthInTrits) == TritState::UNKNOWN)
+	
+	while (this->GetValueByIndex(LastIndex, this->lengthInTrits) == TritState::UNKNOWN && LastIndex > 0)
 	{
 		LastIndex--;
 	}
@@ -446,7 +464,18 @@ size_t Tritset::LogicalLength()
 		return 0;
 }
 
-ostream& operator << (ostream& out, TritState value)
+Tritset::TritsetProxy Tritset::begin()
+{
+	TritsetProxy obj(*this, 0);
+	return obj;
+}
+
+size_t Tritset::end()
+{
+	return this->lengthInTrits;
+}
+
+ostream& operator << (ostream& out, const TritState& value)
 {
 	if (value == TritState::TRUE)
 	{
