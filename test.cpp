@@ -46,27 +46,12 @@ TEST(Tritset, TritAndStateNotEqual)
 	EXPECT_TRUE(set[15] != TritState::FALSE);
 }
 
-TEST(Tritset, TritsEqual)
-{
-	Tritset set(100);
-	set[15] = TritState::TRUE;
-	set[16] = TritState::TRUE;
-	EXPECT_TRUE(set[15] == set[16]);
-}
-
 TEST(Tritset, AssignAndIndexOperators)
 {
 	Tritset set(100);
 	set[14] = set[15] = TritState::TRUE;
-	EXPECT_TRUE(set[15] == set[14]);
-}
-
-TEST(Tritset, TritsNotEqual)
-{
-	Tritset set(100);
-	set[15] = TritState::TRUE;
-	set[16] = TritState::FALSE;
-	EXPECT_TRUE(set[15] != set[16]);
+	EXPECT_TRUE(set[14] == TritState::TRUE);
+	EXPECT_TRUE(set[15] == TritState::TRUE);
 }
 
 TEST(Tritset, Shrink)
@@ -89,15 +74,13 @@ TEST(Tritset, AND)
 	setB[16] = TritState::TRUE;
 	Tritset setC = setA & setB;
 	Tritset setAAfterOperation = setA;
-	for (size_t i = 0; i < setAAfterOperation.GetLengthInTrits(); i++)
-	{
-		EXPECT_TRUE(setAAfterOperation[i] == setA[i]);
-	}
+	
+	EXPECT_TRUE(setAAfterOperation == setA);
+	
 	Tritset setBAfterOperation = setB;
-	for (size_t i = 0; i < setBAfterOperation.GetLengthInTrits(); i++)
-	{
-		EXPECT_TRUE(setBAfterOperation[i] == setB[i]);
-	}
+
+	EXPECT_TRUE(setBAfterOperation == setB);
+	
 	EXPECT_TRUE(setC[15] == TritState::TRUE);
 	EXPECT_TRUE(setC[16] == TritState::FALSE);
 	EXPECT_TRUE(setC[50] == TritState::UNKNOWN);
@@ -112,16 +95,13 @@ TEST(Tritset, OR)
 	setB[15] = TritState::TRUE;
 	setB[16] = TritState::TRUE;
 	Tritset setC = setA || setB;
+
 	Tritset setAAfterOperation = setA;
-	for (size_t i = 0; i < setAAfterOperation.GetLengthInTrits(); i++)
-	{
-		EXPECT_TRUE(setAAfterOperation[i] == setA[i]);
-	}
+	EXPECT_TRUE(setAAfterOperation == setA);
+
 	Tritset setBAfterOperation = setB;
-	for (size_t i = 0; i < setBAfterOperation.GetLengthInTrits(); i++)
-	{
-		EXPECT_TRUE(setBAfterOperation[i] == setB[i]);
-	}
+	EXPECT_TRUE(setBAfterOperation == setB);
+
 	EXPECT_TRUE(setC[15] == TritState::TRUE);
 	EXPECT_TRUE(setC[16] == TritState::TRUE);
 	EXPECT_TRUE(setC[50] == TritState::UNKNOWN);
@@ -134,10 +114,8 @@ TEST(Tritset, NOT)
 	setA[16] = TritState::FALSE;
 	Tritset setB = ~setA;
 	Tritset setAAfterOperation = setA;
-	for (size_t i = 0; i < setAAfterOperation.GetLengthInTrits(); i++)
-	{
-		EXPECT_TRUE(setAAfterOperation[i] == setA[i]);
-	}
+	EXPECT_TRUE(setAAfterOperation == setA);
+
 	EXPECT_TRUE(setB[15] == TritState::FALSE);
 	EXPECT_TRUE(setB[16] == TritState::TRUE);
 	EXPECT_TRUE(setB[50] == TritState::UNKNOWN);
@@ -156,10 +134,7 @@ TEST(Tritset, AssignTritsetToTritset)
 		setA[i] = TritState::FALSE;
 	}
 	Tritset setB = setA;
-	for (size_t i = 0; i < 100; i++)
-	{
-		EXPECT_TRUE(setB[i] == setA[i]);
-	}
+	EXPECT_TRUE(setA == setB);
 }
 
 TEST(Tritset, Cardinality)
