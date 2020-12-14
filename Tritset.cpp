@@ -106,11 +106,20 @@ TritState Tritset::TritsetProxy::operator = (TritState value)
 bool Tritset::TritsetProxy::operator ==(const TritsetProxy& other)
 {
 	if (this->set.GetValueByIndex(this->TritIndex, this->set.lengthInTrits) ==
-		other.set.GetValueByIndex(other.TritIndex, other.set.lengthInTrits))
+		other.set.GetValueByIndex(other.TritIndex, other.set.lengthInTrits) &&
+		this->set == other.set && this->TritIndex == other.TritIndex)
 	{
 		return true;
 	}
 	return false;
+}
+bool Tritset::TritsetProxy::operator !=(const TritsetProxy& other)
+{
+	if (*this == other)
+	{
+		return false;
+	}
+	return true;
 }
 
 bool Tritset::TritsetProxy::operator ==(TritState value)
@@ -121,24 +130,6 @@ bool Tritset::TritsetProxy::operator ==(TritState value)
 bool Tritset::TritsetProxy::operator !=(TritState value)
 {
 	return !(this->set.GetValueByIndex(this->TritIndex, this->set.lengthInTrits) == value);
-}
-
-bool Tritset::TritsetProxy::operator !=(const TritsetProxy& other)
-{
-	if (*this == other)
-	{
-		return false;
-	}
-	return true;
-}
-
-bool Tritset::TritsetProxy::operator !=(size_t index)
-{
-	if (this->TritIndex != index)
-	{
-		return true;
-	}
-	return false;
 }
 
 void Tritset::TritsetProxy::operator ++()
@@ -200,6 +191,36 @@ void Tritset::shrink()
 	this->Trits.resize(NewSize);
 	this->Trits.shrink_to_fit();
 	this->lengthInTrits = RightTritIndex + 1;
+}
+
+bool Tritset::operator == (const Tritset& other)const
+{
+	size_t MaxSize = 0;
+	if (this->lengthInTrits > other.lengthInTrits)
+	{
+		MaxSize = this->lengthInTrits;
+    }
+	else
+	{
+		MaxSize = other.lengthInTrits;
+	}
+	for (size_t i = 0; i < MaxSize; i++)
+	{
+		if (this->GetValueByIndex(i, this->lengthInTrits) != other.GetValueByIndex(i, this->lengthInTrits))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+bool Tritset::operator != (const Tritset& other)const
+{
+	if (*this == other)
+	{
+		return false;
+	}
+	return true;
 }
 
 Tritset Tritset::operator & (const Tritset& other)const
@@ -470,9 +491,10 @@ Tritset::TritsetProxy Tritset::begin()
 	return obj;
 }
 
-size_t Tritset::end()
+Tritset::TritsetProxy Tritset::end()
 {
-	return this->lengthInTrits;
+	TritsetProxy obj(*this, this->lengthInTrits);
+	return obj;
 }
 
 ostream& operator << (ostream& out, const TritState& value)
