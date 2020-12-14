@@ -49,8 +49,6 @@ private:
 
 		bool operator !=(TritState value);
 
-		bool operator !=(size_t index);
-
 		void operator ++();
 
 		TritsetProxy& operator *();
@@ -76,6 +74,10 @@ public:
 
 	void shrink();
 
+	bool operator == (const Tritset& other)const;
+
+	bool operator != (const Tritset& other)const;
+
 	Tritset operator & (const Tritset& other)const;
 
 	Tritset operator || (const Tritset& other)const;
@@ -94,7 +96,7 @@ public:
 
 	TritsetProxy begin();
 	
-	size_t end();
+	TritsetProxy end();
 
 	~Tritset()
 	{
