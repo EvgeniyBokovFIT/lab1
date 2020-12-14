@@ -107,12 +107,13 @@ bool Tritset::TritsetProxy::operator ==(const TritsetProxy& other)
 {
 	if (this->set.GetValueByIndex(this->TritIndex, this->set.lengthInTrits) ==
 		other.set.GetValueByIndex(other.TritIndex, other.set.lengthInTrits) &&
-		this->set == other.set && this->TritIndex == other.TritIndex)
+		&(this->set) == &(other.set) && this->TritIndex == other.TritIndex)
 	{
 		return true;
 	}
 	return false;
 }
+
 bool Tritset::TritsetProxy::operator !=(const TritsetProxy& other)
 {
 	if (*this == other)
